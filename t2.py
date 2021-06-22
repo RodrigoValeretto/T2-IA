@@ -126,19 +126,6 @@ def generateKNN(v, k, seed=None):
     return verticesArray, distMatrix
 
 
-'''
-    for i in verticesArray:
-        auxArray = []
-        for j in verticesArray:
-            if(i == j):
-                continue
-            else:
-                distance = np.sqrt((i.x - j.x)**2 + (i.y - j.y)**2)
-                auxArray.append(aresta(i, j, distance))
-        # print(auxArray)
-'''
-
-
 verticesArray, distMatrix = generateKNN(10, 2, 1)
 
 xScatter = []
@@ -154,9 +141,9 @@ for i in verticesArray:
         # print(j)
         xData = [j.v1.x, j.v2.x]
         yData = [j.v1.y, j.v2.y]
-        ax.plot(xData, yData)
+        ax.plot(xData, yData, color='red')
 
-ax.scatter(xScatter, yScatter)
+ax.scatter(xScatter, yScatter, color='red')
 ax.set_xlim(-0.5)
 ax.set_ylim(-0.5)
 ax.grid(True)
