@@ -107,9 +107,9 @@ def generateKNN(v, k, seed=None):
     distMatrix = distance_matrix(
         xyArray, xyArray)  # linhas x colunas
 
-    for i in range(0, len(verticesArray)):
+    for i in range(0, v):
         kmenores = []
-        for j in range(0, len(verticesArray)):
+        for j in range(0, v):
             if(i == j):
                 continue
             elif(len(kmenores) < k):
@@ -120,12 +120,9 @@ def generateKNN(v, k, seed=None):
                 if(distMatrix[i, j] < kmenores[k-1].d):
                     kmenores[k-1] = aresta(verticesArray[i],
                                            verticesArray[j], distMatrix[i, j])
+                    kmenores.sort(key=getDist)
+
         verticesArray[i].arestas = kmenores
-
-    for i in verticesArray:
-        for j in i.arestas:
-            print(j)
-
     return verticesArray, distMatrix
 
 
@@ -142,7 +139,7 @@ def generateKNN(v, k, seed=None):
 '''
 
 
-verticesArray, distMatrix = generateKNN(10, 3, 1)
+verticesArray, distMatrix = generateKNN(10, 2, 1)
 
 xScatter = []
 yScatter = []
