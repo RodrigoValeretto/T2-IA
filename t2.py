@@ -88,7 +88,16 @@ class aresta:
 
 
 def getDist(aresta):
+    # Função para ordenação do vetor de arestas com base na distância de cada uma
     return aresta.d
+
+
+def hasAresta(v1, v2):
+    # Verifica se o vertice 1 contém uma aresta para o vertice 2
+    for i in v1.arestas:
+        if(i.v2 == v2):
+            return True
+    return False
 
 
 def generateKNN(v, k, seed=None):
@@ -108,19 +117,28 @@ def generateKNN(v, k, seed=None):
         xyArray, xyArray)  # linhas x colunas
 
     for i in range(0, len(verticesArray)):
-        kmenores = []
+        menores = []
+        size = k - len(verticesArray[i].arestas)
+        print(k, len(verticesArray[i].arestas))
         for j in range(0, len(verticesArray)):
             if(i == j):
                 continue
-            elif(len(kmenores) < k):
-                kmenores.append(
+            elif(len(menores) < size):
+                menores.append(
                     aresta(verticesArray[i], verticesArray[j], distMatrix[i, j]))
-                kmenores.sort(key=getDist)
+                menores.sort(key=getDist)
             else:
-                if(distMatrix[i, j] < kmenores[k-1].d):
-                    kmenores[k-1] = aresta(verticesArray[i],
-                                           verticesArray[j], distMatrix[i, j])
-        verticesArray[i].arestas = kmenores
+                if(distMatrix[i, j] < menores[size-1].d):
+                    menores[size-1] = aresta(verticesArray[i],
+                                             verticesArray[j], distMatrix[i, j])
+        for a in menores:
+            verticesArray[i].arestas.append(a)
+
+            if(len(a.v2.arestas) == k):
+                continue
+            elif(not hasAresta(a.v2, a.v1)):
+                a.v2.arestas.append(aresta(a.v2, a.v1, a.d))
+            print(a.v2.arestas)
 
     for i in verticesArray:
         for j in i.arestas:
