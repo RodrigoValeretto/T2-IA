@@ -88,7 +88,13 @@ class aresta:
 
 
 def getDist(aresta):
+    # Função usada para ordenação de arestas
     return aresta.d
+
+
+def printArray(array):
+    for i in array:
+        print(i)
 
 
 def generateKNN(v, k, seed=None):
@@ -126,7 +132,28 @@ def generateKNN(v, k, seed=None):
     return verticesArray, distMatrix
 
 
-verticesArray, distMatrix = generateKNN(10, 2, 1)
+def buscaLargura(s, f):
+    marked = [s]
+    fila = [s]
+
+    while(len(fila) != 0):
+        v = fila[0]
+        for w in v.arestas:
+            if(w.v2 not in marked):
+                if(w.v2 == f):
+                    print("Achou")
+                marked.append(w.v2)
+                fila.append(w.v2)
+            elif(w.v2 in fila):
+                if(w.v2 == f):
+                    print("Achou")
+                # Visitar Aresta?
+        fila.remove(v)
+
+
+# Rotina principal
+verticesArray, distMatrix = generateKNN(10, 3, 1)
+printArray(verticesArray)
 
 xScatter = []
 yScatter = []
@@ -147,4 +174,6 @@ ax.scatter(xScatter, yScatter, color='red')
 ax.set_xlim(-0.5)
 ax.set_ylim(-0.5)
 ax.grid(True)
-plt.show()
+# plt.show()
+
+buscaLargura(verticesArray[2], vertice(10, 6))
