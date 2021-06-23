@@ -92,9 +92,21 @@ def getDist(aresta):
     return aresta.d
 
 
-def printArray(array):
-    for i in array:
+def printList(list):
+    for i in list:
         print(i)
+
+
+def encontraCaminho(arestas, s, f):
+    v1 = f
+    caminho = []
+
+    while(v1 != s):
+        for i in arestas:
+            if(i.v2 == v1):
+                caminho.append(i)
+                v1 = i.v1
+    return caminho
 
 
 def generateKNN(v, k, seed=None):
@@ -135,33 +147,32 @@ def generateKNN(v, k, seed=None):
 def buscaLargura(s, f):
     marked = [s]
     fila = [s]
+    arestasLidas = []
 
     while(len(fila) != 0):
         v = fila.pop(0)
         for w in v.arestas:
             if(w.v2 not in marked):
-                if(w.v2 == f):
-                    print("Achou")
-                    return
+                arestasLidas.append(w)
                 marked.append(w.v2)
                 fila.append(w.v2)
-            """ elif(w.v2 in fila):
                 if(w.v2 == f):
                     print("Achou")
-                    return v """
-            # Visitar Aresta?
+                    caminho = encontraCaminho(arestasLidas, s, f)
+                    return caminho
 
     # printArray(marked)
     print('não achou')
 
 
 # Rotina principal
-grafo, distMatrix = generateKNN(20, 3, 1)
-# printArray(grafo)
 
+# Gera o grafo knn e uma matriz de distância entre os vértices
+grafo, distMatrix = generateKNN(20, 3, 1)
+
+# Faz o plot do grafo
 xScatter = []
 yScatter = []
-
 
 fig, ax = plt.subplots()
 
@@ -178,7 +189,17 @@ ax.scatter(xScatter, yScatter, color='red')
 ax.set_xlim(-0.5)
 ax.set_ylim(-0.5)
 ax.grid(True)
-plt.show()
 
+
+# Inicia algoritmos de busca
 print("inicia busca")
-buscaLargura(grafo[11], vertice(19, 0))
+caminho = buscaLargura(grafo[11], vertice(20, 12))
+
+for i in caminho:
+    xData = [i.v1.x, i.v2.x]
+    yData = [i.v1.y, i.v2.y]
+    ax.plot(xData, yData, color='black')
+
+# Funções para visualização do grafo
+# printList(grafo)
+plt.show()
