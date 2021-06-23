@@ -101,13 +101,13 @@ def generateKNN(v, k, seed=None):
     # v é o número de vértices à serem gerados, k é o número de vizinhos que cada vértice terá
     # e seed é a semente utilizada para a geração aleatória
     random.seed(seed)
-    verticesArray = []
+    grafo = []  # Corresponde ao nosso grafo, sendo ele uma lista de vertices
     xyArray = []
 
     for _ in range(0, v):
         x = random.randint(0, v)
         y = random.randint(0, v)
-        verticesArray.append(vertice(x, y,))
+        grafo.append(vertice(x, y,))
         xyArray.append([x, y])
 
     distMatrix = distance_matrix(
@@ -120,16 +120,16 @@ def generateKNN(v, k, seed=None):
                 continue
             elif(len(kmenores) < k):
                 kmenores.append(
-                    aresta(verticesArray[i], verticesArray[j], distMatrix[i, j]))
+                    aresta(grafo[i], grafo[j], distMatrix[i, j]))
                 kmenores.sort(key=getDist)
             else:
                 if(distMatrix[i, j] < kmenores[k-1].d):
-                    kmenores[k-1] = aresta(verticesArray[i],
-                                           verticesArray[j], distMatrix[i, j])
+                    kmenores[k-1] = aresta(grafo[i],
+                                           grafo[j], distMatrix[i, j])
                     kmenores.sort(key=getDist)
 
-        verticesArray[i].arestas = kmenores
-    return verticesArray, distMatrix
+        grafo[i].arestas = kmenores
+    return grafo, distMatrix
 
 
 def buscaLargura(s, f):
@@ -137,23 +137,27 @@ def buscaLargura(s, f):
     fila = [s]
 
     while(len(fila) != 0):
-        v = fila[0]
+        v = fila.pop(0)
         for w in v.arestas:
             if(w.v2 not in marked):
                 if(w.v2 == f):
                     print("Achou")
+                    return
                 marked.append(w.v2)
                 fila.append(w.v2)
-            elif(w.v2 in fila):
+            """ elif(w.v2 in fila):
                 if(w.v2 == f):
                     print("Achou")
-                # Visitar Aresta?
-        fila.remove(v)
+                    return v """
+            # Visitar Aresta?
+
+    # printArray(marked)
+    print('não achou')
 
 
 # Rotina principal
-verticesArray, distMatrix = generateKNN(10, 3, 1)
-printArray(verticesArray)
+grafo, distMatrix = generateKNN(20, 3, 1)
+# printArray(grafo)
 
 xScatter = []
 yScatter = []
@@ -161,7 +165,7 @@ yScatter = []
 
 fig, ax = plt.subplots()
 
-for i in verticesArray:
+for i in grafo:
     xScatter.append(i.x)
     yScatter.append(i.y)
     for j in i.arestas:
@@ -174,6 +178,7 @@ ax.scatter(xScatter, yScatter, color='red')
 ax.set_xlim(-0.5)
 ax.set_ylim(-0.5)
 ax.grid(True)
-# plt.show()
+plt.show()
 
-buscaLargura(verticesArray[2], vertice(10, 6))
+print("inicia busca")
+buscaLargura(grafo[11], vertice(19, 0))
