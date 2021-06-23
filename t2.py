@@ -145,6 +145,8 @@ def generateKNN(v, k, seed=None):
 
 
 def buscaLargura(s, f):
+    # Função de busca em largura
+    # Recebe o vertice inicial s e o vertice final f
     marked = [s]
     fila = [s]
     arestasLidas = []
@@ -165,8 +167,35 @@ def buscaLargura(s, f):
     print('não achou')
 
 
-# Rotina principal
+def buscaProfundidade(G, f):
+    # Algoritmo de busca em profundidade
+    brancos = []
+    cinzas = []
+    pretos = []
+    for i in G:
+        brancos.append(i)
 
+    for i in G:
+        if(i in brancos):
+            BFR(G, i, f, brancos, cinzas, pretos)
+
+
+def BPR(G, v, f, brancos, cinzas, pretos):
+    # Rotina de busca em profundidade recursiva
+    brancos.remove(v)
+    cinzas.append(v)
+    for w in v.arestas:
+        if(w.v2 == f):
+            print("Achou")
+            return
+        if(w.v2 in brancos):
+            BPR(G, w.v2, f, brancos, cinzas, pretos)
+    cinzas.remove(v)
+    pretos.append(v)
+    return brancos, cinzas, pretos
+
+
+# Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
 grafo, distMatrix = generateKNN(20, 3, 1)
 
@@ -193,12 +222,14 @@ ax.grid(True)
 
 # Inicia algoritmos de busca
 print("inicia busca")
-caminho = buscaLargura(grafo[11], vertice(20, 12))
+#caminho = buscaLargura(grafo[11], vertice(20, 12))
+buscaProfundidade(grafo)
 
-for i in caminho:
+# Plot do caminho da busca em largura
+""" for i in caminho:
     xData = [i.v1.x, i.v2.x]
     yData = [i.v1.y, i.v2.y]
-    ax.plot(xData, yData, color='black')
+    ax.plot(xData, yData, color='black') """
 
 # Funções para visualização do grafo
 # printList(grafo)
