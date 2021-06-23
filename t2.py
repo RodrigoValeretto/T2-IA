@@ -167,32 +167,27 @@ def buscaLargura(s, f):
     print('não achou')
 
 
-def buscaProfundidade(G, f):
+def buscaProfundidade(G, s, f):
     # Algoritmo de busca em profundidade
-    brancos = []
-    cinzas = []
-    pretos = []
-    for i in G:
-        brancos.append(i)
-
-    for i in G:
-        if(i in brancos):
-            BFR(G, i, f, brancos, cinzas, pretos)
+    marked = []
+    arestas = []
+    for w in s.arestas:
+        if(w.v2 not in marked):
+            arestas.append(w)
+            BPR(G, s, f, marked, arestas)
 
 
-def BPR(G, v, f, brancos, cinzas, pretos):
+def BPR(G, v, f, marked, arestas):
     # Rotina de busca em profundidade recursiva
-    brancos.remove(v)
-    cinzas.append(v)
+    marked.append(v)
     for w in v.arestas:
         if(w.v2 == f):
             print("Achou")
+            # AQUI DEVEMOS TRATAR O ENVIO DAS ARESTAS PARA CALCULAR O MELHOR CAMINHO
             return
-        if(w.v2 in brancos):
-            BPR(G, w.v2, f, brancos, cinzas, pretos)
-    cinzas.remove(v)
-    pretos.append(v)
-    return brancos, cinzas, pretos
+        if(w.v2 not in marked):
+            arestas.append(w)
+            BPR(G, w.v2, f, marked, arestas)
 
 
 # Rotina principal
@@ -223,7 +218,7 @@ ax.grid(True)
 # Inicia algoritmos de busca
 print("inicia busca")
 #caminho = buscaLargura(grafo[11], vertice(20, 12))
-buscaProfundidade(grafo)
+buscaProfundidade(grafo, grafo[11], vertice(20, 12))
 
 # Plot do caminho da busca em largura
 """ for i in caminho:
