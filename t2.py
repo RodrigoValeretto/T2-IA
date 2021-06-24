@@ -258,8 +258,8 @@ ax.grid(True)
 
 # Inicia algoritmos de busca
 print("inicia busca")
-#caminho = buscaLargura(grafo, 11, 17)
-caminho = BP(grafo, 11, 17)
+caminho = buscaLargura(grafo, 11, 17)
+#caminho = BP(grafo, 11, 17)
 
 # Plot do caminho da busca em largura
 """ if(caminho):
