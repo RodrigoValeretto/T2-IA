@@ -45,6 +45,9 @@ class vertice:
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __hash__(self):
+        return hash(str(self))
+
 
 class adj:
     def __init__(self, v, d):
@@ -93,15 +96,13 @@ def printList(list):
         print(i)
 
 
-def encontraCaminho(arestas, s, f):
-    v1 = f
-    caminho = []
+def encontraCaminho(G, antecessores, s, f):
+    v = f
+    caminho = [G[f]]
 
-    while(v1 != s):
-        for i in arestas:
-            if(i.v2 == v1):
-                caminho.append(i)
-                v1 = i.v1
+    while(v != s):
+        v = antecessores[v]
+        caminho.insert(0, G[v])
     return caminho
 
 
@@ -113,12 +114,15 @@ def generateKNN(v, k, seed=None):
     AdjList = []
     xyArray = []
 
-    for i in range(0, v):
+    cont = 0
+    while len(xyArray) != 20:
         x = random.randint(0, v)
         y = random.randint(0, v)
-        grafo.append(vertice(i, x, y))
-        AdjList.append(set())
-        xyArray.append([x, y])
+        if([x, y] not in xyArray):
+            xyArray.append([x, y])
+            grafo.append(vertice(cont, x, y))
+            AdjList.append(set())
+            cont += 1
 
     distMatrix = distance_matrix(
         xyArray, xyArray)  # linhas x colunas
@@ -146,6 +150,7 @@ def generateKNN(v, k, seed=None):
 def buscaLargura(G, s, f):
     # Função de busca em largura
     # Recebe o vertice inicial s e o vertice final f
+    print('Buscando ', G[f], 'a partir de ', G[s])
     vf = G[f]
     marked = [s]
     fila = [s]
@@ -160,37 +165,35 @@ def buscaLargura(G, s, f):
                 fila.append(w.v.index)
                 if(w.v == vf):
                     print("Achou")
-                    printList(arestasLidas)
                     #caminho = encontraCaminho(arestasLidas, vs, vf)
                     return  # caminho
 
-    # printArray(marked)
-    printList(arestasLidas)
     print('não achou')
 
 
-def BP(G, s, f):
-    vf = G[f]
+def buscaProfundidade(G, s, f):
+    print('Buscando', G[f], 'a partir de', G[s])
     marked = [s]
     pilha = [s]
-    arestasLidas = []
+    antecessores = []
 
+    for _ in range(0, len(G)):
+        antecessores.append(None)
+
+    vi = None
     while(len(pilha) != 0):
+        vold = vi
         vi = pilha.pop()
+        antecessores[vi] = vold
+        if(vi == f):
+            print("Achou")
+            caminho = encontraCaminho(G, antecessores, s, f)
+            return caminho
         for w in AdjList[vi]:
             if(w.v.index not in marked):
-                arestasLidas.append(w)
                 marked.append(w.v.index)
                 pilha.append(w.v.index)
-                if(w.v == vf):
-                    print("Achou")
-                    printList(arestasLidas)
-                    #caminho = encontraCaminho(arestasLidas, vs, vf)
-                    return  # caminho
-        # printList(pilha)
 
-    # printArray(marked)
-    printList(arestasLidas)
     print('não achou')
 
 
@@ -207,9 +210,7 @@ fig, ax = plt.subplots()
 for i in grafo:
     xScatter.append(i.x)
     yScatter.append(i.y)
-    print('iteração ', i)
     for j in AdjList[i.index]:
-        print(j)
         xData = [i.x, j.v.x]
         yData = [i.y, j.v.y]
         ax.plot(xData, yData, color='red')
@@ -222,16 +223,22 @@ ax.grid(True)
 
 # Inicia algoritmos de busca
 print("inicia busca")
-caminho = buscaLargura(grafo, 11, 17)
-#caminho = BP(grafo, 11, 17)
+inicio = 11
+fim = 17
+#caminho = buscaLargura(grafo, inicio, fim)
+caminho = buscaProfundidade(grafo, inicio, fim)
+
+ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue')
+ax.scatter(grafo[fim].x, grafo[fim].y, color='green')
 
 # Plot do caminho da busca em largura
-""" if(caminho):
-    for i in caminho:
-        xData = [i.v1.x, i.v2.x]
-        yData = [i.v1.y, i.v2.y]
-        ax.plot(xData, yData, color='black') """
+if(caminho):
+    for i in range(0, len(caminho)-1):
+        xData = [caminho[i].x, caminho[i+1].x]
+        yData = [caminho[i].y, caminho[i+1].y]
+        ax.plot(xData, yData, color='black')
 
 # Funções para visualização do grafo
+# print('grafo')
 # printList(grafo)
 plt.show()
