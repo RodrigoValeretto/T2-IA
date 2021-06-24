@@ -43,7 +43,7 @@ class vertice:
 
     # sobrecarga do operador ==
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        return self._x == other.x and self._y == other.y
 
     def __hash__(self):
         return hash(str(self))
@@ -80,14 +80,14 @@ class adj:
         return str(self._v) + ' - ' + str(self._d)
 
     def __eq__(self, other):
-        return self._v.x == other.v.x and self._v.y == other.v.y and self._d == other.d
+        return self._v == other.v and self._d == other.d
 
     def __hash__(self):
         return hash(str(self))
 
 
 def getDist(adj):
-    # Função usada para ordenação de arestas
+    # Função usada para ordenação de adjacentes
     return adj.d
 
 
@@ -99,11 +99,23 @@ def printList(list):
 def encontraCaminho(G, antecessores, s, f):
     v = f
     caminho = [G[f]]
+    distPerc = 0
 
     while(v != s):
+        distPerc += distMatrix[v, antecessores[v]]
         v = antecessores[v]
         caminho.insert(0, G[v])
     return caminho
+
+
+def calcDistPerc(antecessores, distMatrix, s, w):
+    v = w
+    distPerc = 0
+
+    while(v != s):
+        distPerc += distMatrix[v, antecessores[v]]
+        v = antecessores[v]
+    return distPerc
 
 
 def generateKNN(v, k, seed=None):
@@ -159,10 +171,12 @@ def buscaLargura(G, AdjList, s, f):
         antecessores.append(None)
 
     vi = None
+    it = 0
     while(len(fila) != 0):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado!")
+            print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -170,6 +184,8 @@ def buscaLargura(G, AdjList, s, f):
                 marked.append(w.v.index)
                 fila.append(w.v.index)
                 antecessores[w.v.index] = vi
+        it += 1
+    print('levou', it, 'iterações')
     print('Busca concluída: não foi possível encontrar um caminho!')
 
 
@@ -183,10 +199,12 @@ def buscaProfundidade(G, AdjList, s, f):
         antecessores.append(None)
 
     vi = None
+    it = 0
     while(len(pilha) != 0):
         vi = pilha.pop()
         if(vi == f):
             print("Busca concluída: caminho encontrado!")
+            print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -194,6 +212,8 @@ def buscaProfundidade(G, AdjList, s, f):
                 marked.append(w.v.index)
                 pilha.append(w.v.index)
                 antecessores[w.v.index] = vi
+        it += 1
+    print('levou', it, 'iterações')
     print('Busca concluída: não foi possível encontrar um caminho!')
 
 
@@ -209,26 +229,30 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
         antecessores.append(None)
 
     vi = None
+    it = 0
     while(len(fila) != 0):
+        woptions = []
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado!")
-            printList(antecessores)
+            print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
-            woptions = []
             if(w.v.index not in marked):
                 woptions.append(w.v.index)
                 marked.append(w.v.index)
-                fila.append(w.v.index)
                 antecessores[w.v.index] = vi
+        woptions.sort(key=lambda w: distMatrix[w, s] + distMatrix[w, f])
+        fila += woptions
+        it += 1
+    print('levou', it, 'iterações')
     print('Busca concluída: não foi possível encontrar um caminho!')
 
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, AdjList, distMatrix = generateKNN(10, 3, 1)
+grafo, AdjList, distMatrix = generateKNN(20, 3, 27)
 
 # Faz o plot do grafo
 xScatter = []
@@ -253,10 +277,11 @@ ax.grid(True)
 # Inicia algoritmos de busca
 print("inicia busca")
 inicio = 0
-fim = 4
+fim = 17
 
-caminho = buscaLargura(grafo, AdjList, inicio, fim)
+#caminho = buscaLargura(grafo, AdjList, inicio, fim)
 #caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
 ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue')
 ax.scatter(grafo[fim].x, grafo[fim].y, color='green')
