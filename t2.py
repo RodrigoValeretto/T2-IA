@@ -1,4 +1,5 @@
 import random
+import time
 import matplotlib.pyplot as plt
 from scipy.spatial import distance_matrix
 
@@ -175,7 +176,7 @@ def buscaLargura(G, AdjList, s, f):
     while(len(fila) != 0):
         vi = fila.pop(0)
         if(vi == f):
-            print("Busca concluída: caminho encontrado!")
+            print("Busca concluída: caminho encontrado em", it, "iterações!")
             print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
@@ -185,8 +186,7 @@ def buscaLargura(G, AdjList, s, f):
                 fila.append(w.v.index)
                 antecessores[w.v.index] = vi
         it += 1
-    print('levou', it, 'iterações')
-    print('Busca concluída: não foi possível encontrar um caminho!')
+    print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
 
 def buscaProfundidade(G, AdjList, s, f):
@@ -203,7 +203,7 @@ def buscaProfundidade(G, AdjList, s, f):
     while(len(pilha) != 0):
         vi = pilha.pop()
         if(vi == f):
-            print("Busca concluída: caminho encontrado!")
+            print("Busca concluída: caminho encontrado em", it, "iterações!")
             print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
@@ -213,8 +213,7 @@ def buscaProfundidade(G, AdjList, s, f):
                 pilha.append(w.v.index)
                 antecessores[w.v.index] = vi
         it += 1
-    print('levou', it, 'iterações')
-    print('Busca concluída: não foi possível encontrar um caminho!')
+    print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
 
 def buscaAstar(G, AdjList, distMatrix, s, f):
@@ -233,8 +232,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
     while(len(fila) != 0):
         vi = fila.pop(0)
         if(vi == f):
-            print("Busca concluída: caminho encontrado!")
-            print('levou', it, 'iterações')
+            print("Busca concluída: caminho encontrado em", it, "iterações!")
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -245,14 +243,28 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
         fila.sort(key=lambda w: calcDistPerc(
             antecessores, distMatrix, s, w) + distMatrix[w, f])
         it += 1
-    print('levou', it, 'iterações')
-    print('Busca concluída: não foi possível encontrar um caminho!')
+    print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, AdjList, distMatrix = generateKNN(300, 20, 27)
+print("Gerando grafo KNN...")
+grafo, AdjList, distMatrix = generateKNN(7000, 3, 27)
+print("Grafo gerado!")
 
+# Indices dos vertices para os algoritmos de busca
+inicio = 0
+fim = 12
+
+# Algoritmos de busca e cálculo do tempo (testar um algoritmo por execução)
+startTime = time.time()
+#caminho = buscaLargura(grafo, AdjList, inicio, fim)
+#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+endTime = time.time()
+print("Tempo de busca:", endTime - startTime)
+
+print("Plotando grafo...")
 # Faz o plot do grafo
 xScatter = []
 yScatter = []
@@ -272,20 +284,11 @@ ax.scatter(xScatter, yScatter, color='palevioletred', zorder=99)
 # ax.set_ylim(-0.5)
 ax.grid(True)
 
-
-# Inicia algoritmos de busca
-print("inicia busca")
-inicio = 0
-fim = 12
-
-#caminho = buscaLargura(grafo, AdjList, inicio, fim)
-#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
-caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
-
+# plot dos vértices de inicio e fim
 ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue', zorder=100)
 ax.scatter(grafo[fim].x, grafo[fim].y, color='green', zorder=100)
 
-# Plot do caminho da busca em largura
+# Plot do caminho encontrado na busca (caso seja bem sucedido)
 if(caminho):
     for i in range(0, len(caminho)-1):
         xData = [caminho[i].x, caminho[i+1].x]
@@ -296,7 +299,3 @@ if(caminho):
 # print('grafo')
 # printList(grafo)
 plt.show()
-
-
-# Existe um erro ao plotar, que as vezes exibe uma aresta que não existe
-# deve estar relacionado com a marcação dos antecessores de um vertice
