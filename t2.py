@@ -4,13 +4,12 @@ from scipy.spatial import distance_matrix
 
 
 class vertice:
-    def __init__(self, x, y, arestas=[]):
+    def __init__(self, index, x, y):
         # x é a posição do ponto no plano horizontal
         # y é a posição do ponto no plano vertical
-        # arestas são as arestas que esse vertice conecta a outros vertices
+        self._index = index
         self._x = x
         self._y = y
-        self._arestas = arestas
 
     # getters da classe
     @property
@@ -22,8 +21,8 @@ class vertice:
         return self._y
 
     @property
-    def arestas(self):
-        return self._arestas
+    def index(self):
+        return self._index
 
     # setters da classe
     @x.setter
@@ -34,9 +33,9 @@ class vertice:
     def y(self, y):
         self._y = y
 
-    @arestas.setter
-    def arestas(self, arestas):
-        self._arestas = arestas
+    @index.setter
+    def index(self, index):
+        self._index = index
 
     # definição da string gerada pela classe
     def __str__(self):
@@ -47,36 +46,27 @@ class vertice:
         return self.x == other.x and self.y == other.y
 
 
-class aresta:
-    def __init__(self, v1, v2, d):
+class adj:
+    def __init__(self, v, d):
         # v1 é o primeiro vertice da aresta
         # v2 é o segundo vertice da aresta
         # d é a distância da aresta
-        self._v1 = v1
-        self._v2 = v2
+        self._v = v
         self._d = d
 
     # getters da classe
     @property
-    def v1(self):
-        return self._v1
-
-    @property
-    def v2(self):
-        return self._v2
+    def v(self):
+        return self._v
 
     @property
     def d(self):
         return self._d
 
     # setters da classe
-    @v1.setter
-    def v1(self, v1):
-        self._v1 = v1
-
-    @v2.setter
-    def v2(self, v2):
-        self._v2 = v2
+    @v.setter
+    def v(self, v):
+        self._v = v
 
     @d.setter
     def d(self, d):
@@ -84,12 +74,18 @@ class aresta:
 
     # definição da string gerada pela classe
     def __str__(self):
-        return str(self._v1) + ', ' + str(self._v2) + ', ' + str(self._d)
+        return str(self._v) + ' - ' + str(self._d)
+
+    def __eq__(self, other):
+        return self._v.x == other.v.x and self._v.y == other.v.y and self._d == other.d
+
+    def __hash__(self):
+        return hash(str(self))
 
 
-def getDist(aresta):
+def getDist(adj):
     # Função usada para ordenação de arestas
-    return aresta.d
+    return adj.d
 
 
 def printList(list):
@@ -114,12 +110,14 @@ def generateKNN(v, k, seed=None):
     # e seed é a semente utilizada para a geração aleatória
     random.seed(seed)
     grafo = []  # Corresponde ao nosso grafo, sendo ele uma lista de vertices
+    AdjList = []
     xyArray = []
 
-    for _ in range(0, v):
+    for i in range(0, v):
         x = random.randint(0, v)
         y = random.randint(0, v)
-        grafo.append(vertice(x, y))
+        grafo.append(vertice(i, x, y))
+        AdjList.append(set())
         xyArray.append([x, y])
 
     distMatrix = distance_matrix(
@@ -132,37 +130,35 @@ def generateKNN(v, k, seed=None):
                 continue
             elif(len(kmenores) < k):
                 kmenores.append(
-                    aresta(grafo[i], grafo[j], distMatrix[i, j]))
+                    adj(grafo[j], distMatrix[i, j]))
                 kmenores.sort(key=getDist)
             else:
                 if(distMatrix[i, j] < kmenores[k-1].d):
-                    kmenores[k-1] = aresta(grafo[i],
-                                           grafo[j], distMatrix[i, j])
+                    kmenores[k-1] = adj(grafo[j], distMatrix[i, j])
                     kmenores.sort(key=getDist)
 
-        grafo[i].arestas = grafo[i].arestas + kmenores
+        AdjList[i] = AdjList[i].union(kmenores)
         for j in kmenores:
-            j.v2.arestas.append(aresta(j.v2, j.v1, j.d))
-    return grafo, distMatrix
+            AdjList[j.v.index].add(adj(grafo[i], distMatrix[j.v.index, i]))
+    return grafo, AdjList, distMatrix
 
 
 def buscaLargura(G, s, f):
     # Função de busca em largura
     # Recebe o vertice inicial s e o vertice final f
-    vs = G[s]
     vf = G[f]
-    marked = [vs]
-    fila = [vs]
+    marked = [s]
+    fila = [s]
     arestasLidas = []
 
     while(len(fila) != 0):
-        v = fila.pop(0)
-        for w in v.arestas:
-            if(w.v2 not in marked):
+        vi = fila.pop(0)
+        for w in AdjList[vi]:
+            if(w.v.index not in marked):
                 arestasLidas.append(w)
-                marked.append(w.v2)
-                fila.append(w.v2)
-                if(w.v2 == vf):
+                marked.append(w.v.index)
+                fila.append(w.v.index)
+                if(w.v == vf):
                     print("Achou")
                     printList(arestasLidas)
                     #caminho = encontraCaminho(arestasLidas, vs, vf)
@@ -173,48 +169,20 @@ def buscaLargura(G, s, f):
     print('não achou')
 
 
-# Versão recursiva da busca em profundidade
-""" def buscaProfundidade(G, s, f):
-    # Algoritmo de busca em profundidade
-    marked = []
-    arestas = []
-    for w in s.arestas:
-        if(w.v2 not in marked):
-            arestas.append(w)
-            BPR(G, s, f, marked, arestas)
-    printList(arestas)
-
-
-def BPR(G, v, f, marked, arestas):
-    # Rotina de busca em profundidade recursiva
-    marked.append(v)
-    for w in v.arestas:
-        if(w.v2 == f):
-            print("Achou")
-            # AQUI DEVEMOS TRATAR O ENVIO DAS ARESTAS PARA CALCULAR O MELHOR CAMINHO
-            return
-        if(w.v2 not in marked):
-            arestas.append(w)
-            BPR(G, w.v2, f, marked, arestas) """
-
-
 def BP(G, s, f):
-    vs = G[s]
     vf = G[f]
-    marked = [vs]
-    pilha = [vs]
+    marked = [s]
+    pilha = [s]
     arestasLidas = []
 
     while(len(pilha) != 0):
-        v = pilha.pop()
-        print('arestas')
-        printList(v.arestas)
-        for w in v.arestas:
-            if(w.v2 not in marked):
+        vi = pilha.pop()
+        for w in AdjList[vi]:
+            if(w.v.index not in marked):
                 arestasLidas.append(w)
-                marked.append(w.v2)
-                pilha.append(w.v2)
-                if(w.v2 == vf):
+                marked.append(w.v.index)
+                pilha.append(w.v.index)
+                if(w.v == vf):
                     print("Achou")
                     printList(arestasLidas)
                     #caminho = encontraCaminho(arestasLidas, vs, vf)
@@ -228,7 +196,7 @@ def BP(G, s, f):
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, distMatrix = generateKNN(20, 3, 55)
+grafo, AdjList, distMatrix = generateKNN(20, 3, 1)
 
 # Faz o plot do grafo
 xScatter = []
@@ -239,10 +207,11 @@ fig, ax = plt.subplots()
 for i in grafo:
     xScatter.append(i.x)
     yScatter.append(i.y)
-    for j in i.arestas:
-        # print(j)
-        xData = [j.v1.x, j.v2.x]
-        yData = [j.v1.y, j.v2.y]
+    print('iteração ', i)
+    for j in AdjList[i.index]:
+        print(j)
+        xData = [i.x, j.v.x]
+        yData = [i.y, j.v.y]
         ax.plot(xData, yData, color='red')
 
 ax.scatter(xScatter, yScatter, color='red')
@@ -257,11 +226,11 @@ caminho = buscaLargura(grafo, 11, 17)
 #caminho = BP(grafo, 11, 17)
 
 # Plot do caminho da busca em largura
-if(caminho):
+""" if(caminho):
     for i in caminho:
         xData = [i.v1.x, i.v2.x]
         yData = [i.v1.y, i.v2.y]
-        ax.plot(xData, yData, color='black')
+        ax.plot(xData, yData, color='black') """
 
 # Funções para visualização do grafo
 # printList(grafo)
