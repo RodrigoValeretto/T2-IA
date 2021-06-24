@@ -140,7 +140,9 @@ def generateKNN(v, k, seed=None):
                     kmenores[k-1] = adj(grafo[j], distMatrix[i, j])
                     kmenores.sort(key=getDist)
 
-        AdjList[i] = AdjList[i].union(kmenores)
+        AdjList[i] = AdjList[i].union(set(kmenores))
+        print(i)
+        printList(AdjList[i])
         for j in kmenores:
             AdjList[j.v.index].add(adj(grafo[i], distMatrix[j.v.index, i]))
     return grafo, AdjList, distMatrix
@@ -197,9 +199,38 @@ def buscaProfundidade(G, AdjList, s, f):
     print('Busca concluída: não foi possível encontrar um caminho!')
 
 
+def buscaAstar(G, AdjList, distMatrix, s, f):
+    # Função de busca em largura
+    # Recebe o vertice inicial s e o vertice final f
+    print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
+    marked = [s]
+    fila = [s]
+    antecessores = []
+
+    for _ in range(0, len(G)):
+        antecessores.append(None)
+
+    vi = None
+    while(len(fila) != 0):
+        vi = fila.pop(0)
+        if(vi == f):
+            print("Busca concluída: caminho encontrado!")
+            printList(antecessores)
+            caminho = encontraCaminho(G, antecessores, s, f)
+            return caminho
+        for w in AdjList[vi]:
+            woptions = []
+            if(w.v.index not in marked):
+                woptions.append(w.v.index)
+                marked.append(w.v.index)
+                fila.append(w.v.index)
+                antecessores[w.v.index] = vi
+    print('Busca concluída: não foi possível encontrar um caminho!')
+
+
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, AdjList, distMatrix = generateKNN(20, 3, 55)
+grafo, AdjList, distMatrix = generateKNN(10, 3, 1)
 
 # Faz o plot do grafo
 xScatter = []
@@ -224,7 +255,7 @@ ax.grid(True)
 # Inicia algoritmos de busca
 print("inicia busca")
 inicio = 0
-fim = 5
+fim = 4
 
 #caminho = buscaLargura(grafo, AdjList, inicio, fim)
 caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
@@ -241,7 +272,7 @@ if(caminho):
 
 # Funções para visualização do grafo
 # print('grafo')
-printList(grafo)
+# printList(grafo)
 plt.show()
 
 
