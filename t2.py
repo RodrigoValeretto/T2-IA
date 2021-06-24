@@ -121,7 +121,7 @@ def generateKNN(v, k, seed=None):
         if([x, y] not in xyArray):
             xyArray.append([x, y])
             grafo.append(vertice(cont, x, y))
-            AdjList.append(set())
+            AdjList.append([])
             cont += 1
 
     distMatrix = distance_matrix(xyArray, xyArray)  # linhas x colunas
@@ -139,12 +139,11 @@ def generateKNN(v, k, seed=None):
                 if(distMatrix[i, j] < kmenores[k-1].d):
                     kmenores[k-1] = adj(grafo[j], distMatrix[i, j])
                     kmenores.sort(key=getDist)
-
-        AdjList[i] = AdjList[i].union(set(kmenores))
-        print(i)
-        printList(AdjList[i])
         for j in kmenores:
-            AdjList[j.v.index].add(adj(grafo[i], distMatrix[j.v.index, i]))
+            if(j not in AdjList[i]):
+                AdjList[i].append(j)
+                AdjList[j.v.index].append(
+                    adj(grafo[i], distMatrix[j.v.index, i]))
     return grafo, AdjList, distMatrix
 
 
@@ -164,7 +163,6 @@ def buscaLargura(G, AdjList, s, f):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado!")
-            printList(antecessores)
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -257,8 +255,8 @@ print("inicia busca")
 inicio = 0
 fim = 4
 
-#caminho = buscaLargura(grafo, AdjList, inicio, fim)
-caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+caminho = buscaLargura(grafo, AdjList, inicio, fim)
+#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 
 ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue')
 ax.scatter(grafo[fim].x, grafo[fim].y, color='green')
