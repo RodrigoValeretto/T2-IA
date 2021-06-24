@@ -228,7 +228,7 @@ def BP(G, s, f):
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, distMatrix = generateKNN(20, 3, 55)
+grafo, distMatrix = generateKNN(20, 3, 1)
 
 # Faz o plot do grafo
 xScatter = []
