@@ -149,7 +149,7 @@ def generateKNN(v, k, seed=None):
 def buscaLargura(G, AdjList, s, f):
     # Função de busca em largura
     # Recebe o vertice inicial s e o vertice final f
-    print('Buscando ', G[f], 'a partir de ', G[s])
+    print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
     antecessores = []
@@ -159,11 +159,9 @@ def buscaLargura(G, AdjList, s, f):
 
     vi = None
     while(len(fila) != 0):
-        vold = vi
         vi = fila.pop(0)
-        antecessores[vi] = vold
         if(vi == f):
-            print("Achou")
+            print("Busca concluída: caminho encontrado!")
             printList(antecessores)
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
@@ -171,12 +169,12 @@ def buscaLargura(G, AdjList, s, f):
             if(w.v.index not in marked):
                 marked.append(w.v.index)
                 fila.append(w.v.index)
-
-    print('não achou')
+                antecessores[w.v.index] = vi
+    print('Busca concluída: não foi possível encontrar um caminho!')
 
 
 def buscaProfundidade(G, AdjList, s, f):
-    print('Buscando', G[f], 'a partir de', G[s])
+    print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     pilha = [s]
     antecessores = []
@@ -186,25 +184,22 @@ def buscaProfundidade(G, AdjList, s, f):
 
     vi = None
     while(len(pilha) != 0):
-        vold = vi
         vi = pilha.pop()
-        antecessores[vi] = vold
         if(vi == f):
-            print("Achou")
-            printList(antecessores)
+            print("Busca concluída: caminho encontrado!")
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
             if(w.v.index not in marked):
                 marked.append(w.v.index)
                 pilha.append(w.v.index)
-
-    print('não achou')
+                antecessores[w.v.index] = vi
+    print('Busca concluída: não foi possível encontrar um caminho!')
 
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, AdjList, distMatrix = generateKNN(10, 3, 1)
+grafo, AdjList, distMatrix = generateKNN(20, 3, 55)
 
 # Faz o plot do grafo
 xScatter = []
@@ -231,8 +226,8 @@ print("inicia busca")
 inicio = 0
 fim = 5
 
-caminho = buscaLargura(grafo, AdjList, inicio, fim)
-#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+#caminho = buscaLargura(grafo, AdjList, inicio, fim)
+caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 
 ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue')
 ax.scatter(grafo[fim].x, grafo[fim].y, color='green')
@@ -246,8 +241,7 @@ if(caminho):
 
 # Funções para visualização do grafo
 # print('grafo')
-# printList(grafo)
-printList(caminho)
+printList(grafo)
 plt.show()
 
 
