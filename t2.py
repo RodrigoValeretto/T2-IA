@@ -231,7 +231,6 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
     vi = None
     it = 0
     while(len(fila) != 0):
-        woptions = []
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado!")
@@ -240,11 +239,11 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
             return caminho
         for w in AdjList[vi]:
             if(w.v.index not in marked):
-                woptions.append(w.v.index)
+                fila.append(w.v.index)
                 marked.append(w.v.index)
                 antecessores[w.v.index] = vi
-        woptions.sort(key=lambda w: distMatrix[w, s] + distMatrix[w, f])
-        fila += woptions
+        fila.sort(key=lambda w: calcDistPerc(
+            antecessores, distMatrix, s, w) + distMatrix[w, f])
         it += 1
     print('levou', it, 'iterações')
     print('Busca concluída: não foi possível encontrar um caminho!')
@@ -252,7 +251,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, AdjList, distMatrix = generateKNN(20, 3, 27)
+grafo, AdjList, distMatrix = generateKNN(300, 20, 27)
 
 # Faz o plot do grafo
 xScatter = []
@@ -266,9 +265,9 @@ for i in grafo:
     for j in AdjList[i.index]:
         xData = [i.x, j.v.x]
         yData = [i.y, j.v.y]
-        ax.plot(xData, yData, color='red')
+        ax.plot(xData, yData, color='pink')
 
-ax.scatter(xScatter, yScatter, color='red')
+ax.scatter(xScatter, yScatter, color='palevioletred', zorder=99)
 # ax.set_xlim(-0.5)
 # ax.set_ylim(-0.5)
 ax.grid(True)
@@ -277,14 +276,14 @@ ax.grid(True)
 # Inicia algoritmos de busca
 print("inicia busca")
 inicio = 0
-fim = 17
+fim = 12
 
 #caminho = buscaLargura(grafo, AdjList, inicio, fim)
 #caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
-ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue')
-ax.scatter(grafo[fim].x, grafo[fim].y, color='green')
+ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue', zorder=100)
+ax.scatter(grafo[fim].x, grafo[fim].y, color='green', zorder=100)
 
 # Plot do caminho da busca em largura
 if(caminho):
