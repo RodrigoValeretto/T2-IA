@@ -119,7 +119,7 @@ def generateKNN(v, k, seed=None):
     for _ in range(0, v):
         x = random.randint(0, v)
         y = random.randint(0, v)
-        grafo.append(vertice(x, y,))
+        grafo.append(vertice(x, y))
         xyArray.append([x, y])
 
     distMatrix = distance_matrix(
@@ -140,15 +140,19 @@ def generateKNN(v, k, seed=None):
                                            grafo[j], distMatrix[i, j])
                     kmenores.sort(key=getDist)
 
-        grafo[i].arestas = kmenores
+        grafo[i].arestas = grafo[i].arestas + kmenores
+        for j in kmenores:
+            j.v2.arestas.append(aresta(j.v2, j.v1, j.d))
     return grafo, distMatrix
 
 
-def buscaLargura(s, f):
+def buscaLargura(G, s, f):
     # Função de busca em largura
     # Recebe o vertice inicial s e o vertice final f
-    marked = [s]
-    fila = [s]
+    vs = G[s]
+    vf = G[f]
+    marked = [vs]
+    fila = [vs]
     arestasLidas = []
 
     while(len(fila) != 0):
@@ -158,16 +162,19 @@ def buscaLargura(s, f):
                 arestasLidas.append(w)
                 marked.append(w.v2)
                 fila.append(w.v2)
-                if(w.v2 == f):
+                if(w.v2 == vf):
                     print("Achou")
-                    caminho = encontraCaminho(arestasLidas, s, f)
-                    return caminho
+                    printList(arestasLidas)
+                    #caminho = encontraCaminho(arestasLidas, vs, vf)
+                    return  # caminho
 
     # printArray(marked)
+    printList(arestasLidas)
     print('não achou')
 
 
-def buscaProfundidade(G, s, f):
+# Versão recursiva da busca em profundidade
+""" def buscaProfundidade(G, s, f):
     # Algoritmo de busca em profundidade
     marked = []
     arestas = []
@@ -175,6 +182,7 @@ def buscaProfundidade(G, s, f):
         if(w.v2 not in marked):
             arestas.append(w)
             BPR(G, s, f, marked, arestas)
+    printList(arestas)
 
 
 def BPR(G, v, f, marked, arestas):
@@ -187,12 +195,40 @@ def BPR(G, v, f, marked, arestas):
             return
         if(w.v2 not in marked):
             arestas.append(w)
-            BPR(G, w.v2, f, marked, arestas)
+            BPR(G, w.v2, f, marked, arestas) """
+
+
+def BP(G, s, f):
+    vs = G[s]
+    vf = G[f]
+    marked = [vs]
+    pilha = [vs]
+    arestasLidas = []
+
+    while(len(pilha) != 0):
+        v = pilha.pop()
+        print('arestas')
+        printList(v.arestas)
+        for w in v.arestas:
+            if(w.v2 not in marked):
+                arestasLidas.append(w)
+                marked.append(w.v2)
+                pilha.append(w.v2)
+                if(w.v2 == vf):
+                    print("Achou")
+                    printList(arestasLidas)
+                    #caminho = encontraCaminho(arestasLidas, vs, vf)
+                    return  # caminho
+        # printList(pilha)
+
+    # printArray(marked)
+    printList(arestasLidas)
+    print('não achou')
 
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, distMatrix = generateKNN(20, 3, 1)
+grafo, distMatrix = generateKNN(20, 3, 55)
 
 # Faz o plot do grafo
 xScatter = []
@@ -210,21 +246,22 @@ for i in grafo:
         ax.plot(xData, yData, color='red')
 
 ax.scatter(xScatter, yScatter, color='red')
-ax.set_xlim(-0.5)
-ax.set_ylim(-0.5)
+# ax.set_xlim(-0.5)
+# ax.set_ylim(-0.5)
 ax.grid(True)
 
 
 # Inicia algoritmos de busca
 print("inicia busca")
-#caminho = buscaLargura(grafo[11], vertice(20, 12))
-buscaProfundidade(grafo, grafo[11], vertice(20, 12))
+caminho = buscaLargura(grafo, 11, 17)
+#caminho = BP(grafo, 11, 17)
 
 # Plot do caminho da busca em largura
-""" for i in caminho:
-    xData = [i.v1.x, i.v2.x]
-    yData = [i.v1.y, i.v2.y]
-    ax.plot(xData, yData, color='black') """
+if(caminho):
+    for i in caminho:
+        xData = [i.v1.x, i.v2.x]
+        yData = [i.v1.y, i.v2.y]
+        ax.plot(xData, yData, color='black')
 
 # Funções para visualização do grafo
 # printList(grafo)
