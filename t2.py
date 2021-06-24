@@ -111,11 +111,11 @@ def generateKNN(v, k, seed=None):
     # e seed é a semente utilizada para a geração aleatória
     random.seed(seed)
     grafo = []  # Corresponde ao nosso grafo, sendo ele uma lista de vertices
-    AdjList = []
     xyArray = []
+    AdjList = []
 
     cont = 0
-    while len(xyArray) != 20:
+    while len(xyArray) != v:
         x = random.randint(0, v)
         y = random.randint(0, v)
         if([x, y] not in xyArray):
@@ -124,8 +124,7 @@ def generateKNN(v, k, seed=None):
             AdjList.append(set())
             cont += 1
 
-    distMatrix = distance_matrix(
-        xyArray, xyArray)  # linhas x colunas
+    distMatrix = distance_matrix(xyArray, xyArray)  # linhas x colunas
 
     for i in range(0, v):
         kmenores = []
@@ -147,31 +146,36 @@ def generateKNN(v, k, seed=None):
     return grafo, AdjList, distMatrix
 
 
-def buscaLargura(G, s, f):
+def buscaLargura(G, AdjList, s, f):
     # Função de busca em largura
     # Recebe o vertice inicial s e o vertice final f
     print('Buscando ', G[f], 'a partir de ', G[s])
-    vf = G[f]
     marked = [s]
     fila = [s]
-    arestasLidas = []
+    antecessores = []
 
+    for _ in range(0, len(G)):
+        antecessores.append(None)
+
+    vi = None
     while(len(fila) != 0):
+        vold = vi
         vi = fila.pop(0)
+        antecessores[vi] = vold
+        if(vi == f):
+            print("Achou")
+            printList(antecessores)
+            caminho = encontraCaminho(G, antecessores, s, f)
+            return caminho
         for w in AdjList[vi]:
             if(w.v.index not in marked):
-                arestasLidas.append(w)
                 marked.append(w.v.index)
                 fila.append(w.v.index)
-                if(w.v == vf):
-                    print("Achou")
-                    #caminho = encontraCaminho(arestasLidas, vs, vf)
-                    return  # caminho
 
     print('não achou')
 
 
-def buscaProfundidade(G, s, f):
+def buscaProfundidade(G, AdjList, s, f):
     print('Buscando', G[f], 'a partir de', G[s])
     marked = [s]
     pilha = [s]
@@ -187,6 +191,7 @@ def buscaProfundidade(G, s, f):
         antecessores[vi] = vold
         if(vi == f):
             print("Achou")
+            printList(antecessores)
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -199,7 +204,7 @@ def buscaProfundidade(G, s, f):
 
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
-grafo, AdjList, distMatrix = generateKNN(20, 3, 1)
+grafo, AdjList, distMatrix = generateKNN(10, 3, 1)
 
 # Faz o plot do grafo
 xScatter = []
@@ -223,10 +228,11 @@ ax.grid(True)
 
 # Inicia algoritmos de busca
 print("inicia busca")
-inicio = 11
-fim = 17
-#caminho = buscaLargura(grafo, inicio, fim)
-caminho = buscaProfundidade(grafo, inicio, fim)
+inicio = 0
+fim = 5
+
+caminho = buscaLargura(grafo, AdjList, inicio, fim)
+#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 
 ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue')
 ax.scatter(grafo[fim].x, grafo[fim].y, color='green')
@@ -241,4 +247,9 @@ if(caminho):
 # Funções para visualização do grafo
 # print('grafo')
 # printList(grafo)
+printList(caminho)
 plt.show()
+
+
+# Existe um erro ao plotar, que as vezes exibe uma aresta que não existe
+# deve estar relacionado com a marcação dos antecessores de um vertice
