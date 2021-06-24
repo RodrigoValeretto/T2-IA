@@ -4,7 +4,7 @@ from scipy.spatial import distance_matrix
 
 
 class vertice:
-    def __init__(self, x, y, arestas=[]):
+    def __init__(self, x, y, arestas=set()):
         # x é a posição do ponto no plano horizontal
         # y é a posição do ponto no plano vertical
         # arestas são as arestas que esse vertice conecta a outros vertices
@@ -46,6 +46,9 @@ class vertice:
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __hash__(self):
+        return hash(repr(self))
+
 
 class aresta:
     def __init__(self, v1, v2, d):
@@ -85,6 +88,9 @@ class aresta:
     # definição da string gerada pela classe
     def __str__(self):
         return str(self._v1) + ', ' + str(self._v2) + ', ' + str(self._d)
+
+    def __hash__(self):
+        return hash(repr(self))
 
 
 def getDist(aresta):
@@ -140,9 +146,9 @@ def generateKNN(v, k, seed=None):
                                            grafo[j], distMatrix[i, j])
                     kmenores.sort(key=getDist)
 
-        grafo[i].arestas = grafo[i].arestas + kmenores
+        grafo[i].arestas = grafo[i].arestas.union(set(kmenores))
         for j in kmenores:
-            j.v2.arestas.append(aresta(j.v2, j.v1, j.d))
+            j.v2.arestas.add(aresta(j.v2, j.v1, j.d))
     return grafo, distMatrix
 
 
@@ -250,18 +256,17 @@ ax.scatter(xScatter, yScatter, color='red')
 # ax.set_ylim(-0.5)
 ax.grid(True)
 
-
 # Inicia algoritmos de busca
 print("inicia busca")
-caminho = buscaLargura(grafo, 11, 17)
-#caminho = BP(grafo, 11, 17)
+#caminho = buscaLargura(grafo, 11, 17)
+caminho = BP(grafo, 11, 17)
 
 # Plot do caminho da busca em largura
-if(caminho):
+""" if(caminho):
     for i in caminho:
         xData = [i.v1.x, i.v2.x]
         yData = [i.v1.y, i.v2.y]
-        ax.plot(xData, yData, color='black')
+        ax.plot(xData, yData, color='black') """
 
 # Funções para visualização do grafo
 # printList(grafo)
