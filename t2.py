@@ -332,7 +332,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
 print("Gerando grafo KNN...")
-grafo, AdjList, distMatrix = generateKNN(7000, 3, 27)
+grafo, AdjList, distMatrix = generateKNN(30, 3, 27)
 print("Grafo gerado!")
 
 # Indices dos vertices para os algoritmos de busca
