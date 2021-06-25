@@ -119,6 +119,14 @@ def calcDistPerc(antecessores, distMatrix, s, w):
     return distPerc
 
 
+def ordA(antecessores, distMatrix, w, s, f):
+    # Ordenação utilizada para busca A, nesse caso, para a heuristica
+    # dividimos o valor da distância euclidiana do vertice em questãoa até o
+    # vertice buscado pela distancia percorrida desde o vertice inicial até o atual.
+    g = calcDistPerc(antecessores, distMatrix, s, w)
+    return g + distMatrix[w, f]/g
+
+
 def generateKNN(v, k, seed=None):
     # v é o número de vértices à serem gerados, k é o número de vizinhos que cada vértice terá
     # e seed é a semente utilizada para a geração aleatória
@@ -162,7 +170,8 @@ def generateKNN(v, k, seed=None):
 
 def buscaLargura(G, AdjList, s, f):
     # Função de busca em largura
-    # Recebe o vertice inicial s e o vertice final f
+    # Recebe o indice do vertice inicial s e o indice do vertice final f
+    # Também recebe o grafo G e a lista de adjacência dos vertices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
@@ -190,6 +199,9 @@ def buscaLargura(G, AdjList, s, f):
 
 
 def buscaProfundidade(G, AdjList, s, f):
+    # Função de busca em profundidade
+    # Recebe o indice do vertice inicial s e o indice do vertice final f
+    # Também recebe o grafo G e a lista de adjacência dos vertices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     pilha = [s]
@@ -216,9 +228,80 @@ def buscaProfundidade(G, AdjList, s, f):
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
 
+def buscaDjikstra(G, AdjList, distMatrix, s, f):
+    # Função de busca utilizando algoritmo djikstra (best first)
+    # Recebe o indice do vertice inicial s e o indice do vertice final f
+    # Também recebe o grafo G, a lista de adjacencia dos vertices e
+    # a matriz de distâncias euclidianas entre os vértices
+    print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
+    marked = [s]
+    fila = [s]
+    antecessores = []
+
+    for _ in range(0, len(G)):
+        antecessores.append(None)
+
+    vi = None
+    it = 0
+    while(len(fila) != 0):
+        vi = fila.pop(0)
+        if(vi == f):
+            print("Busca concluída: caminho encontrado em", it, "iterações!")
+            caminho = encontraCaminho(G, antecessores, s, f)
+            return caminho
+        for w in AdjList[vi]:
+            if(w.v.index not in marked):
+                fila.append(w.v.index)
+                marked.append(w.v.index)
+                antecessores[w.v.index] = vi
+            else:
+                newDist = calcDistPerc(
+                    antecessores, distMatrix, s, vi) + distMatrix[vi, w.v.index]
+                oldDist = calcDistPerc(antecessores, distMatrix, s, w.v.index)
+                if(newDist < oldDist):
+                    antecessores[w.v.index] = vi
+        fila.sort(key=lambda w: calcDistPerc(
+            antecessores, distMatrix, s, w))
+        it += 1
+    print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
+
+
+def buscaA(G, AdjList, distMatrix, s, f):
+    # Função de busca A
+    # Recebe o indice do vertice inicial s e o indice do vertice final f
+    # Também recebe o grafo G, a lista de adjacencia dos vertices e
+    # a matriz de distâncias euclidianas entre os vértices
+    print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
+    marked = [s]
+    fila = [s]
+    antecessores = []
+
+    for _ in range(0, len(G)):
+        antecessores.append(None)
+
+    vi = None
+    it = 0
+    while(len(fila) != 0):
+        vi = fila.pop(0)
+        if(vi == f):
+            print("Busca concluída: caminho encontrado em", it, "iterações!")
+            caminho = encontraCaminho(G, antecessores, s, f)
+            return caminho
+        for w in AdjList[vi]:
+            if(w.v.index not in marked):
+                fila.append(w.v.index)
+                marked.append(w.v.index)
+                antecessores[w.v.index] = vi
+        fila.sort(key=lambda w: ordA(antecessores, distMatrix, w, s, f))
+        it += 1
+    print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
+
+
 def buscaAstar(G, AdjList, distMatrix, s, f):
-    # Função de busca em largura
-    # Recebe o vertice inicial s e o vertice final f
+    # Função de busca A estrela
+    # Recebe o indice do vertice inicial s e o indice do vertice final f
+    # Também recebe o grafo G, a lista de adjacencia dos vertices e
+    # a matriz de distâncias euclidianas entre os vértices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
@@ -258,9 +341,13 @@ fim = 12
 
 # Algoritmos de busca e cálculo do tempo (testar um algoritmo por execução)
 startTime = time.time()
-#caminho = buscaLargura(grafo, AdjList, inicio, fim)
-#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
-caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+
+# caminho = buscaLargura(grafo, AdjList, inicio, fim)
+# caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
+# caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
+# caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+
 endTime = time.time()
 print("Tempo de busca:", endTime - startTime)
 
