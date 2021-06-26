@@ -237,9 +237,11 @@ def buscaDjikstra(G, AdjList, distMatrix, s, f):
     marked = [s]
     fila = [s]
     antecessores = []
+    distPercVet = []
 
     for _ in range(0, len(G)):
         antecessores.append(None)
+        distPercVet.append(0)
 
     vi = None
     it = 0
@@ -254,14 +256,15 @@ def buscaDjikstra(G, AdjList, distMatrix, s, f):
                 fila.append(w.v.index)
                 marked.append(w.v.index)
                 antecessores[w.v.index] = vi
+                distPercVet[w.v.index] = distPercVet[vi] + \
+                    distMatrix[vi, w.v.index]
             else:
-                newDist = calcDistPerc(
-                    antecessores, distMatrix, s, vi) + distMatrix[vi, w.v.index]
-                oldDist = calcDistPerc(antecessores, distMatrix, s, w.v.index)
+                newDist = distPercVet[vi] + distMatrix[vi, w.v.index]
+                oldDist = distPercVet[w.v.index]
                 if(newDist < oldDist):
                     antecessores[w.v.index] = vi
-        fila.sort(key=lambda w: calcDistPerc(
-            antecessores, distMatrix, s, w))
+                    distPercVet[w.v.index] = newDist
+        fila.sort(key=lambda w: distPercVet[w])
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
@@ -332,7 +335,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
 print("Gerando grafo KNN...")
-grafo, AdjList, distMatrix = generateKNN(30, 3, 27)
+grafo, AdjList, distMatrix = generateKNN(300, 3, 27)
 print("Grafo gerado!")
 
 # Indices dos vertices para os algoritmos de busca
