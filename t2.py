@@ -109,21 +109,11 @@ def encontraCaminho(G, antecessores, s, f):
     return caminho
 
 
-def calcDistPerc(antecessores, distMatrix, s, w):
-    v = w
-    distPerc = 0
-
-    while(v != s):
-        distPerc += distMatrix[v, antecessores[v]]
-        v = antecessores[v]
-    return distPerc
-
-
-def ordA(antecessores, distMatrix, w, s, f):
+def ordA(distPercVet, distMatrix, w, f):
     # Ordenação utilizada para busca A, nesse caso, para a heuristica
     # dividimos o valor da distância euclidiana do vertice em questãoa até o
     # vertice buscado pela distancia percorrida desde o vertice inicial até o atual.
-    g = calcDistPerc(antecessores, distMatrix, s, w)
+    g = distPercVet[w]
     return g + distMatrix[w, f]*(g + 1)
 
 
@@ -278,9 +268,11 @@ def buscaA(G, AdjList, distMatrix, s, f):
     marked = [s]
     fila = [s]
     antecessores = []
+    distPercVet = []
 
     for _ in range(0, len(G)):
         antecessores.append(None)
+        distPercVet.append(0)
 
     vi = None
     it = 0
@@ -295,7 +287,9 @@ def buscaA(G, AdjList, distMatrix, s, f):
                 fila.append(w.v.index)
                 marked.append(w.v.index)
                 antecessores[w.v.index] = vi
-        fila.sort(key=lambda w: ordA(antecessores, distMatrix, w, s, f))
+                distPercVet[w.v.index] = distPercVet[vi] + \
+                    distMatrix[vi, w.v.index]
+        fila.sort(key=lambda w: ordA(distPercVet, distMatrix, w, f))
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
@@ -309,9 +303,11 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
     marked = [s]
     fila = [s]
     antecessores = []
+    distPercVet = []
 
     for _ in range(0, len(G)):
         antecessores.append(None)
+        distPercVet.append(0)
 
     vi = None
     it = 0
@@ -326,8 +322,9 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
                 fila.append(w.v.index)
                 marked.append(w.v.index)
                 antecessores[w.v.index] = vi
-        fila.sort(key=lambda w: calcDistPerc(
-            antecessores, distMatrix, s, w) + distMatrix[w, f])
+                distPercVet[w.v.index] = distPercVet[vi] + \
+                    distMatrix[vi, w.v.index]
+        fila.sort(key=lambda w: distPercVet[w] + distMatrix[w, f])
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
@@ -345,11 +342,11 @@ fim = 12
 # Algoritmos de busca e cálculo do tempo (testar um algoritmo por execução)
 startTime = time.time()
 
-# caminho = buscaLargura(grafo, AdjList, inicio, fim)
-# caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
-caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
-# caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
-# caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+#caminho = buscaLargura(grafo, AdjList, inicio, fim)
+#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+#caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
+caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
+#caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
 endTime = time.time()
 print("Tempo de busca:", endTime - startTime)
