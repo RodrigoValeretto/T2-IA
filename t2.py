@@ -169,9 +169,11 @@ def buscaLargura(G, AdjList, s, f):
     marked = [s]
     fila = [s]
     antecessores = []
+    distPercVet = []
 
     for _ in range(0, len(G)):
         antecessores.append(None)
+        distPercVet.append(0)
 
     vi = None
     it = 0
@@ -179,6 +181,7 @@ def buscaLargura(G, AdjList, s, f):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
+            print("Tamanho total do caminho:", distPercVet[f])
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -186,6 +189,8 @@ def buscaLargura(G, AdjList, s, f):
                 marked.append(w.v.index)
                 fila.append(w.v.index)
                 antecessores[w.v.index] = vi
+                distPercVet[w.v.index] = distPercVet[vi] + \
+                    distMatrix[vi, w.v.index]
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
@@ -198,9 +203,11 @@ def buscaProfundidade(G, AdjList, s, f):
     marked = [s]
     pilha = [s]
     antecessores = []
+    distPercVet = []
 
     for _ in range(0, len(G)):
         antecessores.append(None)
+        distPercVet.append(0)
 
     vi = None
     it = 0
@@ -208,6 +215,7 @@ def buscaProfundidade(G, AdjList, s, f):
         vi = pilha.pop()
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
+            print("Tamanho total do caminho:", distPercVet[f])
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -215,6 +223,8 @@ def buscaProfundidade(G, AdjList, s, f):
                 marked.append(w.v.index)
                 pilha.append(w.v.index)
                 antecessores[w.v.index] = vi
+                distPercVet[w.v.index] = distPercVet[vi] + \
+                    distMatrix[vi, w.v.index]
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
@@ -240,6 +250,7 @@ def buscaDjikstra(G, AdjList, distMatrix, s, f):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
+            print("Tamanho total do caminho:", distPercVet[f])
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -281,6 +292,7 @@ def buscaA(G, AdjList, distMatrix, s, f):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
+            print("Tamanho total do caminho:", distPercVet[f])
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -316,6 +328,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
+            print("Tamanho total do caminho:", distPercVet[f])
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -333,7 +346,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
 print("Gerando grafo KNN...")
-grafo, AdjList, distMatrix = generateKNN(10000, 7, 27)
+grafo, AdjList, distMatrix = generateKNN(300, 7, 27)
 print("Grafo gerado!")
 
 # Indices dos vertices para os algoritmos de busca
@@ -343,11 +356,11 @@ fim = 12
 # Algoritmos de busca e cálculo do tempo (testar um algoritmo por execução)
 startTime = time.time()
 
-#caminho = buscaLargura(grafo, AdjList, inicio, fim)
+caminho = buscaLargura(grafo, AdjList, inicio, fim)
 #caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 #caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
-caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+#caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
 endTime = time.time()
 print("Tempo de busca:", endTime - startTime)
