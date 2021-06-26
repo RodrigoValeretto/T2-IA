@@ -179,7 +179,6 @@ def buscaLargura(G, AdjList, s, f):
         vi = fila.pop(0)
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
-            print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -209,7 +208,6 @@ def buscaProfundidade(G, AdjList, s, f):
         vi = pilha.pop()
         if(vi == f):
             print("Busca concluída: caminho encontrado em", it, "iterações!")
-            print('levou', it, 'iterações')
             caminho = encontraCaminho(G, antecessores, s, f)
             return caminho
         for w in AdjList[vi]:
@@ -335,7 +333,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 # Rotina principal
 # Gera o grafo knn e uma matriz de distância entre os vértices
 print("Gerando grafo KNN...")
-grafo, AdjList, distMatrix = generateKNN(300, 3, 27)
+grafo, AdjList, distMatrix = generateKNN(10000, 7, 27)
 print("Grafo gerado!")
 
 # Indices dos vertices para os algoritmos de busca
@@ -348,8 +346,8 @@ startTime = time.time()
 #caminho = buscaLargura(grafo, AdjList, inicio, fim)
 #caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 #caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
-caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
-#caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+#caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
+caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
 endTime = time.time()
 print("Tempo de busca:", endTime - startTime)
@@ -369,21 +367,27 @@ for i in grafo:
         yData = [i.y, j.v.y]
         ax.plot(xData, yData, color='pink')
 
-ax.scatter(xScatter, yScatter, color='palevioletred', zorder=99)
+ax.scatter(xScatter, yScatter, color='palevioletred', zorder=90)
 # ax.set_xlim(-0.5)
 # ax.set_ylim(-0.5)
 ax.grid(True)
 
 # plot dos vértices de inicio e fim
-ax.scatter(grafo[inicio].x, grafo[inicio].y, color='blue', zorder=100)
-ax.scatter(grafo[fim].x, grafo[fim].y, color='green', zorder=100)
+ax.scatter(grafo[inicio].x, grafo[inicio].y, color='royalblue', zorder=100)
+ax.scatter(grafo[fim].x, grafo[fim].y, color='lime', zorder=100)
 
 # Plot do caminho encontrado na busca (caso seja bem sucedido)
+xScatter.clear()
+yScatter.clear()
 if(caminho):
     for i in range(0, len(caminho)-1):
         xData = [caminho[i].x, caminho[i+1].x]
         yData = [caminho[i].y, caminho[i+1].y]
-        ax.plot(xData, yData, color='black')
+        ax.plot(xData, yData, color='black', zorder=97)
+    for i in caminho:
+        xScatter.append(i.x)
+        yScatter.append(i.y)
+    ax.scatter(xScatter, yScatter, color='yellow', zorder=96)
 
 # Funções para visualização do grafo
 # print('grafo')
