@@ -46,6 +46,7 @@ class vertice:
     def __eq__(self, other):
         return self._x == other.x and self._y == other.y
 
+    # Definindo hash para a classe
     def __hash__(self):
         return hash(str(self))
 
@@ -80,9 +81,11 @@ class adj:
     def __str__(self):
         return str(self._v) + ' - ' + str(self._d)
 
+    # sobrecarga do operador ==
     def __eq__(self, other):
         return self._v == other.v and self._d == other.d
 
+    # Definindo hash para a classe
     def __hash__(self):
         return hash(str(self))
 
