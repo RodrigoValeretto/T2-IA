@@ -124,7 +124,7 @@ def ordA(antecessores, distMatrix, w, s, f):
     # dividimos o valor da distância euclidiana do vertice em questãoa até o
     # vertice buscado pela distancia percorrida desde o vertice inicial até o atual.
     g = calcDistPerc(antecessores, distMatrix, s, w)
-    return g + distMatrix[w, f]/g
+    return g + distMatrix[w, f]*(g + 1)
 
 
 def generateKNN(v, k, seed=None):
