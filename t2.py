@@ -6,6 +6,7 @@ from scipy.spatial import distance_matrix
 
 class vertice:
     def __init__(self, index, x, y):
+        # index é o indice do vertice no grafo
         # x é a posição do ponto no plano horizontal
         # y é a posição do ponto no plano vertical
         self._index = index
@@ -53,9 +54,8 @@ class vertice:
 
 class adj:
     def __init__(self, v, d):
-        # v1 é o primeiro vertice da aresta
-        # v2 é o segundo vertice da aresta
-        # d é a distância da aresta
+        # v é o vertice adjacente
+        # d é a distância desse vértice
         self._v = v
         self._d = d
 
@@ -96,11 +96,14 @@ def getDist(adj):
 
 
 def printList(list):
+    # Função de auxílio, utilizada apenas para debug do código
     for i in list:
         print(i)
 
 
 def encontraCaminho(G, antecessores, s, f):
+    # Função responsável por encontrar o caminho
+    # encontrado pela busca entre os vertices de índice s e f
     v = f
     caminho = [G[f]]
     distPerc = 0
@@ -114,19 +117,28 @@ def encontraCaminho(G, antecessores, s, f):
 
 def ordA(distPercVet, distMatrix, w, f):
     # Ordenação utilizada para busca A, nesse caso, para a heuristica
-    # dividimos o valor da distância euclidiana do vertice em questãoa até o
-    # vertice buscado pela distancia percorrida desde o vertice inicial até o atual.
+    # multiplicamos o valor da distância euclidiana do vertice em questão até o
+    # vertice buscado pela distancia percorrida desde o vertice inicial até o atual
+    # somado a 1 (para evitar que g seja zero e o valor tenda a zero)
     g = distPercVet[w]
     return g + distMatrix[w, f]*(g + 1)
 
 
 def generateKNN(v, k, seed=None):
-    # v é o número de vértices à serem gerados, k é o número de vizinhos que cada vértice terá
-    # e seed é a semente utilizada para a geração aleatória
+    # Função responsável pela geração do grafo KNN
+    # v é o número de vértices à serem gerados
+    # k é o número mínimo de vizinhos que cada vértice terá
+    # seed é a semente (número inteiro ou vazio) utilizada para a geração aleatória
+
+    # Verifica se v é maior que k
+    if(v < k):
+        print('ERRO: Valor de v menor que o valor de k!')
+        exit()
+
     random.seed(seed)
     grafo = []  # Corresponde ao nosso grafo, sendo ele uma lista de vertices
     xyArray = []
-    AdjList = []
+    AdjList = []  # lista de adjacências do nosso grafo
 
     cont = 0
     while len(xyArray) != v:
@@ -138,7 +150,7 @@ def generateKNN(v, k, seed=None):
             AdjList.append([])
             cont += 1
 
-    distMatrix = distance_matrix(xyArray, xyArray)  # linhas x colunas
+    distMatrix = distance_matrix(xyArray, xyArray)
 
     for i in range(0, v):
         kmenores = []
@@ -163,8 +175,8 @@ def generateKNN(v, k, seed=None):
 
 def buscaLargura(G, AdjList, s, f):
     # Função de busca em largura
-    # Recebe o indice do vertice inicial s e o indice do vertice final f
-    # Também recebe o grafo G e a lista de adjacência dos vertices
+    # Recebe o indice do vértice inicial s e o indice do vertice final f
+    # Também recebe o grafo G e a lista de adjacência dos vértices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
@@ -197,8 +209,8 @@ def buscaLargura(G, AdjList, s, f):
 
 def buscaProfundidade(G, AdjList, s, f):
     # Função de busca em profundidade
-    # Recebe o indice do vertice inicial s e o indice do vertice final f
-    # Também recebe o grafo G e a lista de adjacência dos vertices
+    # Recebe o indice do vértice inicial s e o indice do vertice final f
+    # Também recebe o grafo G e a lista de adjacência dos vértices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     pilha = [s]
@@ -231,9 +243,9 @@ def buscaProfundidade(G, AdjList, s, f):
 
 def buscaDjikstra(G, AdjList, distMatrix, s, f):
     # Função de busca utilizando algoritmo djikstra (best first)
-    # Recebe o indice do vertice inicial s e o indice do vertice final f
-    # Também recebe o grafo G, a lista de adjacencia dos vertices e
-    # a matriz de distâncias euclidianas entre os vértices
+    # Recebe o indice do vértice inicial s e o indice do vertice final f
+    # Também recebe o grafo G, a lista de adjacência dos vértices e
+    # a matriz com as distâncias euclidianas entre os vértices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
@@ -273,9 +285,9 @@ def buscaDjikstra(G, AdjList, distMatrix, s, f):
 
 def buscaA(G, AdjList, distMatrix, s, f):
     # Função de busca A
-    # Recebe o indice do vertice inicial s e o indice do vertice final f
-    # Também recebe o grafo G, a lista de adjacencia dos vertices e
-    # a matriz de distâncias euclidianas entre os vértices
+    # Recebe o indice do vértice inicial s e o indice do vertice final f
+    # Também recebe o grafo G, a lista de adjacência dos vértices e
+    # a matriz com as distâncias euclidianas entre os vértices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
@@ -309,9 +321,9 @@ def buscaA(G, AdjList, distMatrix, s, f):
 
 def buscaAstar(G, AdjList, distMatrix, s, f):
     # Função de busca A estrela
-    # Recebe o indice do vertice inicial s e o indice do vertice final f
-    # Também recebe o grafo G, a lista de adjacencia dos vertices e
-    # a matriz de distâncias euclidianas entre os vértices
+    # Recebe o indice do vértice inicial s e o indice do vertice final f
+    # Também recebe o grafo G, a lista de adjacência dos vértices e
+    # a matriz com as distâncias euclidianas entre os vértices
     print('Buscando', G[f], 'a partir de', str(G[s]) + '...')
     marked = [s]
     fila = [s]
@@ -344,24 +356,27 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 
 
 # Rotina principal
-# Gera o grafo knn e uma matriz de distância entre os vértices
+# Gera o grafo knn, a lista de adjacências e uma matriz de distância entre os vértices
+# Não é possível gerar um grafo com um v < k, o programa vai finalizar caso aconteça
 print("Gerando grafo KNN...")
-grafo, AdjList, distMatrix = generateKNN(300, 7, 27)
+grafo, AdjList, distMatrix = generateKNN(20, 5, 27)
 print("Grafo gerado!")
 
 # Indices dos vertices para os algoritmos de busca
 inicio = 0
 fim = 12
 
-# Algoritmos de busca e cálculo do tempo (testar um algoritmo por execução)
+# Inicia cálculo do tempo
 startTime = time.time()
 
+# Algoritmos de busca (testar um algoritmo por execução)
 caminho = buscaLargura(grafo, AdjList, inicio, fim)
 #caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
 #caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
+# Finaliza contagem de tempo e a exibe
 endTime = time.time()
 print("Tempo de busca:", endTime - startTime)
 
@@ -385,7 +400,7 @@ ax.scatter(xScatter, yScatter, color='palevioletred', zorder=90)
 # ax.set_ylim(-0.5)
 ax.grid(True)
 
-# plot dos vértices de inicio e fim
+# Plot dos vértices de inicio e fim
 ax.scatter(grafo[inicio].x, grafo[inicio].y, color='royalblue', zorder=100)
 ax.scatter(grafo[fim].x, grafo[fim].y, color='lime', zorder=100)
 
