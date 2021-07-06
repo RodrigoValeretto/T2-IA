@@ -314,6 +314,12 @@ def buscaA(G, AdjList, distMatrix, s, f):
                 antecessores[w.v.index] = vi
                 distPercVet[w.v.index] = distPercVet[vi] + \
                     distMatrix[vi, w.v.index]
+            else:
+                newDist = distPercVet[vi] + distMatrix[vi, w.v.index]
+                oldDist = distPercVet[w.v.index]
+                if(newDist < oldDist):
+                    antecessores[w.v.index] = vi
+                    distPercVet[w.v.index] = newDist
         fila.sort(key=lambda w: ordA(distPercVet, distMatrix, w, f))
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
@@ -379,8 +385,8 @@ startTime = time.time()
 #caminho = buscaLargura(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaProfundidade(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
-#caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
-caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
+#caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
 # Finaliza contagem de tempo e a exibe
 endTime = time.time()
