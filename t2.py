@@ -173,7 +173,7 @@ def generateKNN(v, k, seed=None):
     return grafo, AdjList, distMatrix
 
 
-def buscaLargura(G, AdjList, s, f):
+def buscaLargura(G, AdjList, distMatrix, s, f):
     # Função de busca em largura
     # Recebe o indice do vértice inicial s e o indice do vertice final f
     # Também recebe o grafo G e a lista de adjacência dos vértices
@@ -207,7 +207,7 @@ def buscaLargura(G, AdjList, s, f):
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
 
 
-def buscaProfundidade(G, AdjList, s, f):
+def buscaProfundidade(G, AdjList, distMatrix, s, f):
     # Função de busca em profundidade
     # Recebe o indice do vértice inicial s e o indice do vertice final f
     # Também recebe o grafo G e a lista de adjacência dos vértices
@@ -350,6 +350,12 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
                 antecessores[w.v.index] = vi
                 distPercVet[w.v.index] = distPercVet[vi] + \
                     distMatrix[vi, w.v.index]
+            else:
+                newDist = distPercVet[vi] + distMatrix[vi, w.v.index]
+                oldDist = distPercVet[w.v.index]
+                if(newDist < oldDist):
+                    antecessores[w.v.index] = vi
+                    distPercVet[w.v.index] = newDist
         fila.sort(key=lambda w: distPercVet[w] + distMatrix[w, f])
         it += 1
     print('Busca concluída: não foi possível encontrar um caminho em', it, 'iterações!')
@@ -359,7 +365,7 @@ def buscaAstar(G, AdjList, distMatrix, s, f):
 # Gera o grafo knn, a lista de adjacências e uma matriz de distância entre os vértices
 # Não é possível gerar um grafo com um v < k, o programa vai finalizar caso aconteça
 print("Gerando grafo KNN...")
-grafo, AdjList, distMatrix = generateKNN(20, 5, 27)
+grafo, AdjList, distMatrix = generateKNN(300, 5, 74)
 print("Grafo gerado!")
 
 # Indices dos vertices para os algoritmos de busca
@@ -370,11 +376,11 @@ fim = 12
 startTime = time.time()
 
 # Algoritmos de busca (testar um algoritmo por execução)
-caminho = buscaLargura(grafo, AdjList, inicio, fim)
-#caminho = buscaProfundidade(grafo, AdjList, inicio, fim)
+#caminho = buscaLargura(grafo, AdjList, distMatrix, inicio, fim)
+#caminho = buscaProfundidade(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaDjikstra(grafo, AdjList, distMatrix, inicio, fim)
 #caminho = buscaA(grafo, AdjList, distMatrix, inicio, fim)
-#caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
+caminho = buscaAstar(grafo, AdjList, distMatrix, inicio, fim)
 
 # Finaliza contagem de tempo e a exibe
 endTime = time.time()
